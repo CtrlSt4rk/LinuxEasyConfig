@@ -1,8 +1,8 @@
 function automountboot(){
-	#mounting on standard points (/mnt/partname)
+	#mounting on standard points (/mnt/partitionName)
 	clear
-	printf '%s\n' "AutoMount utility, press A to AutoMount"
-	printf '%s\n' "If you want to revert it, please press R"
+	printf '%s\n' "AutoMount utility, made for 1 time use only!! Use it at your own risk"
+	printf '%s\n' "Press A to AutoMount and press R to revert it"
 	read -s -n 1 optionAutoMount
 
 	if [ $optionAutoMount == "a" ] || [ $optionAutoMount == "A" ]
@@ -13,7 +13,7 @@ function automountboot(){
 		printf '%s\n\n' "Only non mounted partitions can be used! If you can't identify reboot the system before"
 		printf '\n%s' "How many new partitions should be mounted on boot: "
 		read partitionNumber
-		sudo cp /etc/fstab /etc/fstab.backup
+		cp /etc/fstab /etc/fstab.backup
 		for ((i=1;i<=$partitionNumber;i++))
 		do
 			clear
@@ -24,17 +24,25 @@ function automountboot(){
 			read partitionName
 			printf '\n%s' "Type or paste the filesystem used (FSTYPE): "  
 			read fstype
-			sudo mkdir /media/$partitionName
+			mkdir /media/$partitionName
 			echo "UUID=$uuid	/media/$partitionName 	$fstype 	defaults	0	0" | sudo tee -a /etc/fstab
-			#sudo su -c  echo "UUID=$uuid	/media/$partitionName 	$fstype 	defaults	0	0" >> /etc/fstab
 		done
-		sudo mount -a
-		#echo "Mounting was successful!"
+		if [ mount -a &> /dev/null ]
+		then
+		       echo "Mounting was successful!"
+		else
+		       echo "Mounting failed!"
+		fi 
 	fi
 	if [ $optionAutoMount == "r" ] || [ $optionAutoMount == "R" ]
 	then
-		sudo cp /etc/fstab.backup /etc/fstab
-		#echo "Restore was successful!"
+		cp /etc/fstab.backup /etc/fstab
+		if [  $? -eq 0 ]
+		then
+		       echo "Restore was successful!"
+		else
+		       echo "Restore failed!"
+		fi
 	fi
 }
 
